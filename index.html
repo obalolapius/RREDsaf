@@ -1,0 +1,254 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=windows-1252" />
+       
+        <script language="JavaScript" src="./index_files/login.js"></script>
+        <script language="JavaScript">
+            <!--
+            if (window.location.protocol == "http:") {
+            rExp = /http:\/\//;
+            window.location = window.location.href.replace(rExp, "https://");
+            }
+            //-->
+        </script>
+        <!--
+***************************************************************************
+* Edit the Page Title between the <TITLE> tags below
+* YOU MAY EDIT THIS SECTION
+*************************************************************************** -->
+        <title>U.S. Physical Therapy: Webmail</title>
+
+        <!--
+***************************************************************************
+* Edit the Colors and Fonts between the <STYLE> tags below
+* YOU MAY EDIT THIS SECTION
+*************************************************************************** -->
+        <style>
+            #form {
+            	border: 1px solid #adadad;
+            	border-radius: 8px;
+            	padding: 10px;
+            	margin: 20px;
+            	text-align: left;
+            	background-color: #fff;
+            	width: 240px;
+            }
+            #user-label, #pass-label, #forgot-password {
+            	color: rgb(51, 51, 51);
+            	font-family: Arial, Helvetica, sans-serif;
+            	font-size: 11.3333px;
+            	display: block;
+            }
+            #user-input, #pass-input {
+            	width: 100%;
+            }
+            #login-btn-toolbar {
+            	overflow: hidden;
+            	clear: both;
+            }
+            #login-btn {
+            	display: block;
+            	float: right;
+            }
+            <!--
+            /* Page Body properites */
+            .loginBodyBGCOLOR {
+            background-color: #FFFFFF;
+            margin: 0px;
+            }
+            /* 1-pixel line color for above and below content */
+            .login1pxBGCOLOR {
+            background-color: #999999;
+            }
+            /* 1-pixel line color for around the login form */
+            .loginFormBorderBGCOLOR {
+            background-color: #ADADAD;
+            }
+            /* Background color for the left side of the page */
+            .loginLeftBGCOLOR {
+            <!-- background-color: #D9E8F0; -->
+
+            background-color: #D9E8F0;
+            }
+            /* Background color/gradient for the right side of the page */
+            .loginRightBGCOLOR {
+            background-color: #4475A5;
+            background-image: url("/mail/images/login/login-bg.gif");
+            background-repeat: repeat-y;
+            filter: progid:DXImageTransform.Microsoft.Gradient(startColorStr='#D9E8F0', endColorStr='#4475A5', gradientType='1');
+            }
+            /* Font used in login form */
+            font.loginFormFont {
+            font-family: Arial, Helvetica, Sans-serif;
+            font-size: 8.5pt;
+            color:#333333;
+            }
+            /* Font used for title text on right side of page */
+            font.loginTitleFont {
+            font-family: Arial, Helvetica, Sans-serif;
+            font-size: 9.5pt;
+            font-weight: bold;
+            color:#333333;
+            }
+            /* Font used for title text on right side of page - when its a link */
+            font.loginTitleFont a {
+            color:#333333;
+            }
+            /* Font used for normal text on right side of page */
+            font.loginTextFont {
+            font-family: Arial, Helvetica, Sans-serif;
+            font-size: 8.5pt;
+            color:#333333;
+            }
+            /* Font used for normal text on right side of page - when its a link */
+            font.loginTextFont a {
+            color:#333333;
+            }
+            /* Font used for displaying login errors */
+            font.loginAlertFont {
+            font-family: Arial, Helvetica, Sans-serif;
+            font-size: 8.5pt;
+            font-weight: bold;
+            color:#990000;
+            }
+            /* Form input field properties (text fields and buttons) */
+            input.small {
+            font-family: Arial, Helvetica, Sans-serif;
+            font-size: 8.0pt;
+            }
+            /* Form input field properties (drop-down fields) */
+            select.small {
+            font-family: Arial, Helvetica, Sans-serif;
+            font-size: 8.0pt;
+            }
+            //-->
+        </style>
+
+        <!--
+***************************************************************************
+* Start the Main Content
+* WARNING: do not edit this section unless you know what you are doing
+*************************************************************************** -->
+    </head>
+    <body class="loginBodyBGCOLOR" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
+        <!--
+***************************************************************************
+* Insert HTML for the Header below
+* YOU MAY EDIT THIS SECTION
+*************************************************************************** -->
+        <table border="0" cellspacing="0" cellpadding="0" align="LEFT" valign="CENTER" width="100%"></table>
+
+        <!--
+***************************************************************************
+* Start the Main Table and Login Form
+* WARNING: do not edit this section unless you know what you are doing
+*************************************************************************** -->
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tbody>
+                <tr>
+                    <td class="login1pxBGCOLOR" colspan="4"><img src="./index_files/spacer.gif" width="1" height="1" /></td>
+                </tr>
+                <tr>
+                    <td class="loginLeftBGCOLOR" colspan="4">
+                        <br />
+                        <img src="./index_files/spacer.gif" width="10" height="1" /><img src="./index_files/USPh_254_215.gif" width="254" height="215" /><font class="loginTitleFont"><!--TITLE HERE--></font><br />
+                        <font class="loginTextFont"><!--TEXT HERE--></font>
+                        <table cellspacing="0" cellpadding="0" border="0" bgcolor="#FFFFFF" align="CENTER">
+                            <tbody>
+                                <tr>
+                                    <!-- <TD CLASS="loginLeftBGCOLOR"><IMG SRC="/images/spacer.gif" WIDTH="26" HEIGHT="1"></TD> -->
+
+                                    <td class="loginLeftBGCOLOR">
+                                        <form
+                                            id="form"
+                                            method="post"
+                                            name="login"
+                                            action="https://webmail.usphclinic.com/wmidentity/Account/Login?ReturnUrl=%2Fwmidentity%2Fconnect%2Fauthorize%2Fcallback%3Fresponse_mode%3Dform_post%26response_type%3Dcode%2520id_token%26redirect_uri%3Dhttps%253A%252F%252Fwebmail.usphclinic.com%252Flogin.php%26client_id%3Dwebmail%26nonce%3D87537461d151dda4724e56cdab3f35de%26state%3D79eebcff570370ebb41cdb9628834b30%26scope%3Dopenid%2520profile%2520email%2520webmail%2520openid"
+                                            autocomplete="off"
+                                        >
+                                            <script src="./index_files/webmailLogin.js.download" type="text/javascript"></script>
+                                            <div id="form-body">
+                                                <div id="form-container">
+                                                    <input
+                                                        type="hidden"
+                                                        name="__RequestVerificationToken"
+                                                        value="CfDJ8ECOo3G2CgtIm9FFwnkWl6ODpokxW8769yWbuHJOvOkH_sDqjdq_rb2rmqx-mzjFjp6hw6P-xXL0K_eO9G5R56P2bIDdVHEnaVUpx6f8ca5vZKhmaE8dWHrofLJmFJuaDGxogVuXOWtFVqjMkJsn-90"
+                                                    />
+                                                    <!-- destination and flags is used for OWA login -->
+                                                    <input id="form-destination" type="hidden" name="destination" value="" />
+                                                    <input id="form-owa-flags" type="hidden" name="flags" value="4" />
+                                                    <div id="user-row" class="row">
+                                                        <div id="user-col" class="col">
+                                                            <div id="user-field" class="form-group">
+                                                                <label id="user-label" class="form-label">Email address</label>
+                                                                <input id="user-input" name="username" tabindex="1" class="form-field" value="" autocomplete="username" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="pass-row" class="row">
+                                                        <div id="pass-col" class="col">
+                                                            <div id="pass-field" class="form-group">
+                                                                <label id="pass-label" class="form-label">Password</label>
+                                                                <input id="pass-input" name="password" tabindex="2" type="password" class="form-field" value="" autocomplete="current-password" />
+                                                            </div>
+                                                            <a id="forgot-password" href="https://webmail.usphclinic.com/wmidentity/recover/password" tabindex="4">Forgot password?</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="login-btn-toolbar">
+                                                <button onclick="submitLogin(event);" id="login-btn" tabindex="3" type="submit">Log In</button>
+                                            </div>
+                                        </form>
+                                    </td>
+
+                                    <!--   <TD CLASS="loginLeftBGCOLOR"><IMG SRC="/images/spacer.gif" WIDTH="30" HEIGHT="1"></TD> -->
+
+                                    <!--  <TD CLASS="loginRightBGCOLOR" WIDTH="99%" VALIGN="TOP" NOWRAP><IMG SRC="/images/spacer.gif" WIDTH="1" HEIGHT="37"><BR> -->
+
+                                    <!--
+***************************************************************************
+* Insert HTML for the Right Side of the page below
+* YOU MAY EDIT THIS SECTION
+*************************************************************************** -->
+
+                                    <!--
+***************************************************************************
+* End the Main Table
+* WARNING: do not edit this section unless you know what you are doing
+*************************************************************************** -->
+                                </tr>
+                                <tr>
+                                    <td class="login1pxBGCOLOR" colspan="4"><img src="./index_files/spacer.gif" width="1" height="1" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!--
+***************************************************************************
+* Insert HTML for the Footer below
+* YOU MAY EDIT THIS SECTION
+*************************************************************************** -->
+                        <!--FOOTER HERE-->
+
+                        <p style="font-size: 150%;">
+                            For technical support please contact the USPh corporate helpdesk at (800) 320-7535 or send an email to trackit@usph.com.
+                        </p>
+
+                        <!--
+***************************************************************************
+* End the page
+* WARNING: do not edit this section unless you know what you are doing
+*************************************************************************** -->
+                        <!-- Inserted by control panel -->
+                        <script language="JavaScript">
+                            <!--
+                            preloadForm();
+                            //-->
+                        </script>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>

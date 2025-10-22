@@ -1,0 +1,364 @@
+_login_form = null;
+_input_found = false;
+
+function SetCookie(name, value, expires_ms){
+  var date=new Date();
+  var now=date.getTime();
+  date.setTime(now+expires_ms);
+  document.cookie=name+"="+value+";path=/;expires="+date.toGMTString();
+}
+
+function GetCookie(name){
+	var cookie = " " + String(document.cookie);
+	var pos=cookie.indexOf(" "+name+"=");
+
+	if (pos == -1) {
+		return '';
+	}
+
+	var end = cookie.indexOf(";",pos);
+	return cookie.substring(pos+name.length+2,end==-1?cookie.length:end);
+}
+
+function getQueryVariable(variable) {
+  var query = location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  }
+  return "";
+}
+
+// 30 days converted to milliseconds
+var cookieExpMS = 2592000000;
+
+function setInterfaceCookie() {
+  if (typeof(document.loginForm.elements['type']) != 'undefined') {
+    if (document.loginForm.elements['type'].type=='hidden') {
+      SetCookie('default_interface',document.loginForm.elements['type'].value,true,cookieExpMS);
+    } else {
+      SetCookie('default_interface',document.loginForm.elements['type'].options[document.loginForm.elements['type'].selectedIndex].value,true,cookieExpMS);
+    }
+  }
+}
+
+function setupSession () {
+
+  // If "useSSL" checbox is checked, log into https://
+  if ((document.loginForm.useSSL) && ((document.loginForm.useSSL.checked) || (document.loginForm.useSSL.value == "1") )){
+
+		document.loginForm.action = makeUrlSsl(document.loginForm.getAttribute('action'));
+	 }
+
+	SetCookie("password", "", -86400000);
+
+  // If "remember" checkbox is checked, drop cookie to remeber "user_name", "password", "hostname"
+  // Else if not checked, delete any existing cookie
+  if (document.loginForm.remember && document.loginForm.remember.checked)
+  {
+	if (typeof(document.loginForm.user_name) != 'undefined') {
+		SetCookie("username", document.loginForm.user_name.value, cookieExpMS);
+	}
+
+	if (typeof(document.loginForm.password) != 'undefined') {
+		var password = escape(TEAencrypt(document.loginForm.password.value, document.domain));
+		SetCookie("passwordenc", password, cookieExpMS);
+	}
+
+    // hostname is a bit more complicated since it might be a dropdown
+    if (typeof(document.loginForm.hostname) != 'undefined') {
+      if (typeof(document.loginForm.hostname.options) != 'undefined') {
+        SetCookie("hostname", document.loginForm.hostname.options[document.loginForm.hostname.selectedIndex].value, cookieExpMS);
+      }
+      else {
+        SetCookie("hostname", document.loginForm.hostname.value, cookieExpMS);
+      }
+    }
+    if (typeof(document.loginForm.useSSL) != 'undefined') {
+      if (document.loginForm.useSSL.checked) {
+        SetCookie("useSSL", "0", cookieExpMS);
+      }
+      else {
+        SetCookie("useSSL", "0", cookieExpMS);
+      }
+    }
+  }
+  else {
+    SetCookie("username", "", -86400000);
+    SetCookie("passwordenc", "", -86400000);
+    SetCookie("hostname", "", -86400000);
+    SetCookie("useSSL", "", -86400000);
+  }
+  setInterfaceCookie();
+}
+
+function preloadForm() {
+	_login_form = document.loginForm;
+
+	// Switch onsubmits
+	var inputs = _login_form.parentNode.getElementsByTagName('input');
+	var inputs = document.body.getElementsByTagName('input');
+	for (var i=0,ii=inputs.length; i<ii; i++) {
+		if (String(inputs[i].type).toLowerCase() == 'submit') {
+			_input_found = true;
+			_login_form.onsubmit = function() { return false; };
+			inputs[i].onclick = function() { submitForm(); };
+			break;
+		}
+	}
+
+  document.loginForm.password.value="";
+  var userCookie = urldecode(GetCookie("username"));
+  var oldpassCookie = GetCookie("password");
+  var passCookie = GetCookie("passwordenc");
+  var hostCookie = GetCookie("hostname");
+  var sslCookie  = GetCookie("useSSL");
+  // Always set useSSL checkbox if on https page
+  if (window.location.protocol == "https:") 
+    sslCookie = "1";
+  if ((userCookie != "") && (passCookie != "" || oldpassCookie != "")) {
+    if (typeof(document.loginForm.user_name) != 'undefined')
+      document.loginForm.user_name.value = userCookie;
+
+    if (typeof(document.loginForm.password) != 'undefined') {
+		if (oldpassCookie != "") {
+			passCookie = oldpassCookie;
+		} else {
+			passCookie = unescape(passCookie);
+			passCookie = TEAdecrypt(passCookie, document.domain);
+		}
+		document.loginForm.password.value = passCookie;
+	}
+
+    if (typeof(document.loginForm.remember) != 'undefined') {
+      document.loginForm.remember.defaultChecked = true;
+      document.loginForm.remember.checked = true;
+    }
+    if (typeof(document.loginForm.hostname) != 'undefined') {
+      if (typeof(document.loginForm.hostname.options) != 'undefined') {
+        for (i=0; i < document.loginForm.hostname.options.length; i++) {
+          if (document.loginForm.hostname.options[i].value == hostCookie) {
+            document.loginForm.hostname.selectedIndex = i;
+          }
+        }
+      }
+    }
+    if (sslCookie == "1") {
+      if (typeof(document.loginForm.useSSL) != 'undefined') {
+        document.loginForm.useSSL.defaultChecked = true;
+        document.loginForm.useSSL.checked = true;
+ 	  }
+	} else {
+      if (typeof(document.loginForm.useSSL) != 'undefined') {
+        document.loginForm.useSSL.defaultChecked = false;
+		document.loginForm.useSSL.checked = false;
+	  }
+	}
+  }
+  if (typeof(document.loginForm.user_name) != 'undefined') {
+    document.loginForm.user_name.select();
+    document.loginForm.user_name.focus();
+  }
+}
+
+// Prevent multiple form submissions
+var alreadySubmitted = 0;
+function submitForm(got_url) {
+	if (!alreadySubmitted) {
+		if (got_url) {
+			alreadySubmitted = 1;
+			setupSession();
+			return true;
+		} else {
+			getPostUrl();
+		}
+		return false;
+	} else {
+		return false;
+	}
+}
+
+	// {{{ getPostUrl()
+	function getPostUrl() {
+		if (_login_form.user_name.name == 'username') {
+			setupSession();
+			_login_form.submit();
+			return;
+		}
+
+		var s = document.createElement('script');
+		if (window._ext_js_path) {
+			s.src = window._ext_js_path;
+		} else {
+			s.src = 'https://iad.wm.emailsrvr.com/mail6/';
+		}
+		s.src += 'ext/login/submit.php?e=' + encodeURIComponent(_login_form.user_name.value) + '&h=';
+		if (_login_form.hostname && _login_form.hostname.value) {
+			s.src += _login_form.hostname.value;
+		}
+		document.body.appendChild(s);
+	}
+	
+	// }}}
+
+// {{{ urldecode()
+function urldecode(encoded)
+{
+
+	if(!encoded) return "";
+
+	// Replace + with ' '
+	//Replace %xx with equivalent character
+	var HEXCHARS = "0123456789ABCDEFabcdef"; 
+	var plaintext = "";
+	var i = 0;
+	while (i < encoded.length) {
+		var ch = encoded.charAt(i);
+		if (ch == "+") {
+			plaintext += " ";
+			i++;
+		} else if (ch == "%") {
+			if (i < (encoded.length-2) 
+					&& HEXCHARS.indexOf(encoded.charAt(i+1)) != -1 
+					&& HEXCHARS.indexOf(encoded.charAt(i+2)) != -1 ) {
+				plaintext += unescape(encoded.substr(i,3));
+				i += 3;
+			} else {
+				plaintext += "";
+				i++;
+			}
+		} else {
+			plaintext += ch;
+			i++;
+		}
+	}
+
+	return plaintext;
+};
+// }}} urldecode()
+
+// TEAencrypt: Use Corrected Block TEA to encrypt plaintext using password
+//             (note plaintext & password must be strings not string objects)
+//
+// Return encrypted text as string
+//
+function TEAencrypt(plaintext, passwd)
+{
+    if (plaintext.length == 0) return('');  // nothing to encrypt
+    // 'escape' plaintext so chars outside ISO-8859-1 work in single-byte packing, but  
+    // keep spaces as spaces (not '%20') so encrypted text doesn't grow too long, and 
+    // convert result to longs
+    var v = strToLongs(escape(plaintext).replace(/%20/g,' '));
+    if (v.length == 1) v[1] = 0;  // algorithm doesn't work for n<2 so fudge by adding nulls
+    var k = strToLongs(passwd.slice(0,16));  // simply convert first 16 chars of password as key
+    var n = v.length;
+
+    var z = v[n-1], y = v[0], delta = 0x9E3779B9;
+    var mx, e, q = Math.floor(6 + 52/n), sum = 0;
+
+    while (q-- > 0) {  // 6 + 52/n operations gives between 6 & 32 mixes on each word
+        sum += delta;
+        e = sum>>>2 & 3;
+        for (var p = 0; p < n-1; p++) {
+            y = v[p+1];
+            mx = (z>>>5 ^ y<<2) + (y>>>3 ^ z<<4) ^ (sum^y) + (k[p&3 ^ e] ^ z);
+            z = v[p] += mx;
+        }
+        y = v[0];
+        mx = (z>>>5 ^ y<<2) + (y>>>3 ^ z<<4) ^ (sum^y) + (k[p&3 ^ e] ^ z);
+        z = v[n-1] += mx;
+    }
+    // note use of >>> in place of >> due to lack of 'unsigned' type in JavaScript 
+
+    var ciphertext = longsToStr(v);
+
+    return escCtrlCh(ciphertext);
+}
+
+//
+// TEAdecrypt: Use Corrected Block TEA to decrypt ciphertext using password
+//
+function TEAdecrypt(ciphertext, passwd)
+{
+    if (ciphertext.length == 0) return('');
+    var v = strToLongs(unescCtrlCh(ciphertext));
+    var k = strToLongs(passwd.slice(0,16)); 
+    var n = v.length;
+
+    var z = v[n-1], y = v[0], delta = 0x9E3779B9;
+    var mx, e, q = Math.floor(6 + 52/n), sum = q*delta;
+
+    while (sum != 0) {
+        e = sum>>>2 & 3;
+        for (var p = n-1; p > 0; p--) {
+            z = v[p-1];
+            mx = (z>>>5 ^ y<<2) + (y>>>3 ^ z<<4) ^ (sum^y) + (k[p&3 ^ e] ^ z);
+            y = v[p] -= mx;
+        }
+        z = v[n-1];
+        mx = (z>>>5 ^ y<<2) + (y>>>3 ^ z<<4) ^ (sum^y) + (k[p&3 ^ e] ^ z);
+        y = v[0] -= mx;
+        sum -= delta;
+    }
+
+    var plaintext = longsToStr(v);
+
+    // strip trailing null chars resulting from filling 4-char blocks:
+    plaintext = plaintext.replace(/\0+$/,'');
+
+    return unescape(plaintext);
+}
+
+
+// supporting functions
+
+function strToLongs(s) {  // convert string to array of longs, each containing 4 chars
+    // note chars must be within ISO-8859-1 (with Unicode code-point < 256) to fit 4/long
+    var l = new Array(Math.ceil(s.length/4));
+    for (var i=0; i<l.length; i++) {
+        // note little-endian encoding - endianness is irrelevant as long as 
+        // it is the same in longsToStr() 
+        l[i] = s.charCodeAt(i*4) + (s.charCodeAt(i*4+1)<<8) + 
+               (s.charCodeAt(i*4+2)<<16) + (s.charCodeAt(i*4+3)<<24);
+    }
+    return l;  // note running off the end of the string generates nulls since 
+}              // bitwise operators treat NaN as 0
+
+function longsToStr(l) {  // convert array of longs back to string
+    var a = new Array(l.length);
+    for (var i=0; i<l.length; i++) {
+        a[i] = String.fromCharCode(l[i] & 0xFF, l[i]>>>8 & 0xFF, 
+                                   l[i]>>>16 & 0xFF, l[i]>>>24 & 0xFF);
+    }
+    return a.join('');  // use Array.join() rather than repeated string appends for efficiency
+}
+
+function escCtrlCh(str) {  // escape control chars which might cause problems with encrypted texts
+    return str.replace(/[\0\t\n\v\f\r\xa0!]/g, function(c) { return '!' + c.charCodeAt(0) + '!'; });
+}
+
+function unescCtrlCh(str) {  // unescape potentially problematic nulls and control characters
+    return str.replace(/!\d\d?\d?!/g, function(c) { return String.fromCharCode(c.slice(1,-1)); });
+}
+
+function makeUrlSsl(url) {
+	var prot = url.substr(0, 6);
+	if (prot == 'http:/') {
+		return 'https' + url.substr(5);
+	} else if (prot == 'https:') {
+		return url;
+	} else if (url.substr(0, 1) == '/') {
+		return 'https://' + document.domain + url;
+	} else {
+		var loc = String(document.location);
+		var lsl = loc.substr(8).lastIndexOf('/');
+		if (lsl != -1) {
+			loc = loc.substr(0, lsl+9);
+		}
+
+		return 'https://' + loc.substr(loc.indexOf('//')+2) + url;
+	}
+}
